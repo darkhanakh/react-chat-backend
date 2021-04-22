@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { UserModel } from '../schema';
+import { UserModel } from '../models';
 
 export default class UserController {
   show = (req: Request, res: Response): Response | void => {

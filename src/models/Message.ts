@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-interface IMessage extends Document {
+export interface IMessage extends Document {
   text: {
     type: string;
     require: boolean;

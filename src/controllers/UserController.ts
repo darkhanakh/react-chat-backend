@@ -1,12 +1,18 @@
-import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
+import { Request, Response } from 'express';
+import { Server } from 'socket.io';
 import { validationResult } from 'express-validator';
 
 import { UserModel } from '../models';
 import { createJWTToken } from '../lib';
-import { IUser } from '../models/User';
 
 export default class UserController {
+  io: Server;
+
+  constructor(io: Server) {
+    this.io = io;
+  }
+
   show = (req: Request, res: Response): Response | void => {
     const id = req.params.id;
     UserModel.findById(id, (err: unknown, user: unknown) => {
@@ -34,10 +40,6 @@ export default class UserController {
       .catch((e: unknown) => {
         res.json(e);
       });
-  };
-
-  getMe = (): void => {
-    // TODO: Сделать возврат информации о самом себе(аутентификация)
   };
 
   delete = (req: Request, res: Response): void => {
@@ -70,7 +72,6 @@ export default class UserController {
       return res.status(422).json({ errors: errors.array() });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     UserModel.findOne({ email: postData.email }, (err: unknown, user: any) => {
       if (err) {
         return res.status(404).json({
@@ -90,6 +91,19 @@ export default class UserController {
           message: 'Incorrect password or email',
         });
       }
+    });
+  };
+
+  getMe = (req: Request, res: Response): void => {
+    const id = req.user?._id;
+
+    UserModel.findById(id, (err: any, user: any) => {
+      if (err) {
+        return res.status(404).json({
+          message: 'User not found',
+        });
+      }
+      res.json(user);
     });
   };
 }

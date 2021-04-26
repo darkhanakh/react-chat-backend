@@ -1,14 +1,22 @@
 import { Request, Response } from 'express';
+import { Server } from 'socket.io';
+
 import { DialogModel, MessageModel } from '../models';
 
 export default class DialogController {
+  io: Server;
+
+  constructor(io: Server) {
+    this.io = io;
+  }
+
   index = (req: Request, res: Response): void => {
-    const authorId: any = '608133e9b78bca0730c5d550';
+    const authorId: any = req.user?._id;
+    console.log('authorId: ', authorId);
 
     DialogModel.find({ author: authorId })
       .populate(['author', 'partner'])
       .exec(function (err, dialogs) {
-        console.log(err);
         if (err) {
           return res.status(404).json({
             message: 'Dialogs not found',

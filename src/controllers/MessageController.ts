@@ -1,8 +1,15 @@
 import { Request, Response } from 'express';
 import { MessageModel } from '../models';
+import { Server } from 'socket.io';
 
 export default class MessageController {
-  index = (req: Request, res: Response): void => {
+  io: Server;
+
+  constructor(io: Server) {
+    this.io = io;
+  }
+
+  public index = (req: Request, res: Response): void => {
     const dialogId: any = req.query.dialog;
 
     MessageModel.find({ dialog: dialogId })
@@ -17,8 +24,8 @@ export default class MessageController {
       });
   };
 
-  create = (req: Request, res: Response): void => {
-    const userId = '608133e9b78bca0730c5d550';
+  public create = (req: Request, res: Response): void => {
+    const userId = req.user?._id;
 
     const postData = {
       text: req.body.text,
@@ -32,13 +39,14 @@ export default class MessageController {
       .save()
       .then((obj: any) => {
         res.json(obj);
+        this.io.emit('SERVER:NEW_MESSAGE', obj);
       })
       .catch(reason => {
         res.json(reason);
       });
   };
 
-  delete = (req: Request, res: Response): void => {
+  public delete = (req: Request, res: Response): void => {
     const id: string = req.params.id;
 
     MessageModel.findOneAndRemove({ _id: id })

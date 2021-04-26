@@ -10,8 +10,8 @@ const checkAuth = (req: any, res: express.Response, next: express.NextFunction) 
   const token = req.headers.token;
 
   verifyJWTToken(token)
-    .then(user => {
-      req.user = user;
+    .then((user: any) => {
+      req.user = user.data._doc;
       next();
     })
     .catch(() => {

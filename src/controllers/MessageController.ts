@@ -3,7 +3,7 @@ import { MessageModel } from '../models';
 import { Server } from 'socket.io';
 
 export default class MessageController {
-  io: Server;
+  private io: Server;
 
   constructor(io: Server) {
     this.io = io;
@@ -38,8 +38,15 @@ export default class MessageController {
     message
       .save()
       .then((obj: any) => {
-        res.json(obj);
-        this.io.emit('SERVER:NEW_MESSAGE', obj);
+        obj.populate('dialog', (e: any, messages: any) => {
+          if (e) {
+            return res.status(500).json({
+              message: e,
+            });
+          }
+          res.json(obj);
+          this.io.emit('SERVER:NEW_MESSAGE', obj);
+        });
       })
       .catch(reason => {
         res.json(reason);

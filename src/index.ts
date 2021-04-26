@@ -16,5 +16,5 @@ const io = createSockets(httpServer);
 createRoutes(app, io);
 
 httpServer.listen(process.env.PORT, () => {
-  console.log(`Example app listening at http://localhost:${process.env.PORT}`);
+  console.log(`Server started at http://localhost:${process.env.PORT}`);
 });

@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 import { DialogModel, MessageModel } from '../models';
 
 export default class DialogController {
-  io: Server;
+  private io: Server;
 
   constructor(io: Server) {
     this.io = io;

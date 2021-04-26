@@ -15,7 +15,9 @@
         window.socket = sio;
 
         sio.on('SERVER:NEW_MESSAGE', messageObj => {
-          console.log('new message: ', messageObj.text);
+          if (window.user !== messageObj.user) {
+            console.log(messageObj.text);
+          }
         });
       };
     </script>

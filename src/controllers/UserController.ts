@@ -7,7 +7,7 @@ import { UserModel } from '../models';
 import { createJWTToken } from '../lib';
 
 export default class UserController {
-  io: Server;
+  private io: Server;
 
   constructor(io: Server) {
     this.io = io;

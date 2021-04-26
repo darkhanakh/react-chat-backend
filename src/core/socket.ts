@@ -1,8 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import http from 'http';
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-const createSockets = (http: number | http.Server | undefined) => {
+const createSockets = (http: number | http.Server | undefined): Server => {
   const io = new Server(http, {
     cors: {
       origin: '*',

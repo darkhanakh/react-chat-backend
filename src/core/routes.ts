@@ -7,21 +7,22 @@ import {
   MessageController as MessageCtrl,
 } from '../controllers';
 import { updateLastSeen, checkAuth } from '../middlewares';
-import { loginValidation } from '../lib';
+import { loginValidation, registerValidation } from '../lib';
 
 const createRoutes = (app: express.Express, io: Server): void => {
-  app.use(express.json());
-  app.use(updateLastSeen);
-  app.use(checkAuth);
-
   const UserController = new UserCtrl(io);
   const DialogController = new DialogCtrl(io);
   const MessageController = new MessageCtrl(io);
 
+  app.use(express.json());
+  app.use(updateLastSeen);
+  app.use(checkAuth);
+
   app.get('/user/me', UserController.getMe);
+  app.get('/user/verify', UserController.verify);
+  app.post('/user/signup', registerValidation, UserController.create);
+  app.post('/user/signin', loginValidation, UserController.login);
   app.get('/user/:id', UserController.show);
-  app.post('/user/registration', UserController.create);
-  app.post('/user/login', loginValidation, UserController.login);
   app.delete('/user/:id', UserController.delete);
 
   app.get('/dialogs', DialogController.index);

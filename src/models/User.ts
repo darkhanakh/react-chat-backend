@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import isEmail from 'validator/lib/isEmail';
+import differenceInMinutes from 'date-fns/difference_in_minutes';
 
 import { generatePasswordHash } from '../lib';
 
@@ -45,6 +46,14 @@ const UserSchema = new Schema(
   },
 );
 
+UserSchema.virtual('isOnline').get(function (this: any) {
+  return differenceInMinutes(new Date().toISOString(), this.last_seen) < 5;
+});
+
+UserSchema.set('toJSON', {
+  virtuals: true,
+});
+
 UserSchema.pre('save', function (next) {
   // eslint-disable-next-line
   const user: IUser = this;
@@ -54,7 +63,10 @@ UserSchema.pre('save', function (next) {
   generatePasswordHash(user.password)
     .then(hash => {
       user.password = String(hash);
-      next();
+      generatePasswordHash(+new Date() + '').then(confirmHash => {
+        user.confirm_hash = String(confirmHash);
+        next();
+      });
     })
     .catch(err => {
       next(err);

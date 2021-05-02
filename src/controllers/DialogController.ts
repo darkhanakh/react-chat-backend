@@ -11,11 +11,17 @@ export default class DialogController {
   }
 
   index = (req: Request, res: Response): void => {
-    const authorId: any = req.user?._id;
-    console.log('authorId: ', authorId);
+    const userId: any = req.user?._id;
 
-    DialogModel.find({ author: authorId })
+    DialogModel.find()
+      .or([{ author: userId }, { partner: userId }])
       .populate(['author', 'partner'])
+      .populate({
+        path: 'lastMessage',
+        populate: {
+          path: 'user',
+        },
+      })
       .exec(function (err, dialogs) {
         if (err) {
           return res.status(404).json({
@@ -45,7 +51,14 @@ export default class DialogController {
         message
           .save()
           .then(() => {
-            res.json(dialogObj);
+            dialogObj.lastMessage = message._id;
+            dialogObj.save().then(() => {
+              res.json(dialogObj);
+              this.io.emit('SERVER:DIALOG_CREATED', {
+                ...postData,
+                dialog: dialogObj,
+              });
+            });
           })
           .catch(reason => {
             res.json(reason);

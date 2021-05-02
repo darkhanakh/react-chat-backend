@@ -149,4 +149,17 @@ export default class UserController {
       });
     });
   };
+
+  public findUsers = (req: Request, res: Response): void => {
+    const query: any = req.query.q;
+    UserModel.find()
+      .or([{ fullname: new RegExp(query, 'i') }, { email: new RegExp(query, 'i') }])
+      .then((users: any) => res.json(users))
+      .catch((err: any) => {
+        return res.status(404).json({
+          status: 'error',
+          message: err,
+        });
+      });
+  };
 }

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Server } from 'socket.io';
 
-import { DialogModel, MessageModel, UserModel } from '../models';
+import { DialogModel, MessageModel } from '../models';
 
 export default class DialogController {
   private io: Server;

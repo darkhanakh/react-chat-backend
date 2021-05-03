@@ -70,20 +70,57 @@ export default class MessageController {
   };
 
   public delete = (req: Request, res: Response): void => {
-    const id: string = req.params.id;
+    const id: any = req.query.id;
+    const userId: any = req.user?._id;
 
-    MessageModel.findOneAndRemove({ _id: id })
-      .then(message => {
-        if (message) {
-          res.json({
-            message: `Message deleted`,
-          });
-        }
-      })
-      .catch(() => {
-        res.json({
-          message: `Message not found`,
+    MessageModel.findById(id, (err: any, message: any) => {
+      if (err || !message) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Message not found',
         });
-      });
+      }
+
+      if (message.user.toString() === userId) {
+        const dialogId = message.dialog;
+        message.remove();
+
+        MessageModel.findOne(
+          { dialog: dialogId },
+          {},
+          { sort: { created_at: -1 } },
+          (err, lastMessage) => {
+            if (err) {
+              res.status(500).json({
+                status: 'error',
+                message: err,
+              });
+            }
+
+            DialogModel.findById(dialogId, (err: any, dialog: any) => {
+              if (err) {
+                res.status(500).json({
+                  status: 'error',
+                  message: err,
+                });
+              }
+
+              dialog.lastMessage = lastMessage;
+              dialog.save();
+            });
+          },
+        );
+
+        return res.json({
+          status: 'success',
+          message: 'Message deleted',
+        });
+      } else {
+        return res.status(403).json({
+          status: 'error',
+          message: 'Not have permission',
+        });
+      }
+    });
   };
 }

@@ -1,4 +1,4 @@
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import http from 'http';
 
 const createSockets = (http: number | http.Server | undefined): Server => {
@@ -8,8 +8,14 @@ const createSockets = (http: number | http.Server | undefined): Server => {
     },
   });
 
-  io.on('connection', (socket: Socket) => {
-    // TODO: Доработать сокеты
+  io.on('connection', (socket: any) => {
+    socket.on('DIALOGS:JOIN', (dialogId: string) => {
+      socket.dialogId = dialogId;
+      socket.join(dialogId);
+    });
+    socket.on('DIALOGS:TYPING', (obj: any) => {
+      socket.broadcast.emit('DIALOGS:TYPING', obj);
+    });
   });
 
   return io;

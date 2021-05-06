@@ -1,13 +1,12 @@
 import './core/db';
+import dotenv from 'dotenv';
+dotenv.config();
 
 import express from 'express';
-import dotenv from 'dotenv';
 import { createServer } from 'http';
 
 import createRoutes from './core/routes';
 import createSockets from './core/socket';
-
-dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
